@@ -1,0 +1,319 @@
+{% extends "admin/layout.html" %}
+{% block title %}Bookings | Admin CineSeat{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --red: #E8272A;
+        --red-dark: #B81D1F;
+        --bg: #0A0A0B;
+        --bg2: #111114;
+        --surface: #1E1E24;
+        --surface2: #26262E;
+        --text: #F2F0EB;
+        --text2: #9A9898;
+        --text3: #5C5C60;
+        --border: rgba(255, 255, 255, 0.07);
+    }
+
+    .booking-card {
+        background: var(--bg2);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-left: 4px solid var(--red);
+        color: var(--text);
+    }
+
+    .booking-card:hover {
+        border-color: red;
+        transform: translateY(-2px);
+    }
+
+    /* Avatar & Images */
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(232, 39, 42, 0.1);
+        /* CineSeat Red slightly transparent */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        color: var(--red);
+        flex-shrink: 0;
+        border: 1px solid rgba(232, 39, 42, 0.2);
+    }
+
+    .movie-poster-sm {
+        width: 48px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid var(--border2);
+    }
+
+    /* Badges & Chips */
+    .seat-chip {
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        color: var(--text2);
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 2px;
+    }
+
+    /* Details Panel */
+    .booking-details-panel {
+        background-color: var(--bg);
+        border-top: 1px dashed var(--border);
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    /* Custom Toolbar & Inputs */
+    .control-toolbar {
+        background: var(--bg2);
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .custom-admin-input {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text) !important;
+        font-size: 14px;
+    }
+
+    .custom-admin-input::placeholder {
+        color: var(--text3);
+    }
+
+    .custom-admin-input:focus {
+        border-color: var(--red) !important;
+        box-shadow: none !important;
+    }
+
+    .input-group-text.custom-admin-text {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text3) !important;
+    }
+
+    .btn-red-outline {
+        border: 1px solid var(--red);
+        color: var(--red);
+        background: transparent;
+        transition: 0.2s;
+    }
+
+    .btn-red-outline:hover {
+        background: var(--red);
+        color: #fff;
+    }
+</style>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-12 col-xl-4 mb-3 mb-xl-0">
+        <h3 class="fw-medium mb-1"><i class="bi bi-ticket-perforated text-red me-2"></i> Bookings</h3>
+        <p class="text-white-50 small mb-0">Manage and monitor all customer ticket reservations.</p>
+    </div>
+
+    <div class="col-12 col-xl-8">
+        <div class="control-toolbar d-flex flex-column flex-md-row gap-3 align-items-center">
+
+            <div class="input-group flex-grow-1">
+                <span class="input-group-text custom-admin-text border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="searchInput" class="form-control custom-admin-input border-start-0 ps-0"
+                    placeholder="Search by movie, user, or theatre...">
+            </div>
+
+            <div class="d-flex gap-3 w-100 w-md-auto">
+                <div class="input-group" style="min-width: 160px;">
+                    <span class="input-group-text custom-admin-text border-end-0"><i class="bi bi-calendar3"></i></span>
+                    <input type="date" id="dateFilter" class="form-control custom-admin-input border-start-0 ps-0">
+                </div>
+
+                <!-- <select id="statusFilter" class="form-select custom-admin-input" style="min-width: 140px;">
+                    <option value="">All Status</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% for booking in bookings %}
+        <div class="booking-card mb-3 booking-row"
+            data-text="{{ booking.showtime.movie.title }} {{ booking.showtime.theatre.name }} {{ booking.user_id }}"
+            data-date="{{ booking.showtime.show_date }}" data-status="{{ booking.status | default('confirmed') }}">
+
+            <div class="card-body p-3 p-md-4">
+                <div class="row align-items-center gy-3">
+
+                    <div class="col-12 col-md-3 d-flex align-items-center gap-3">
+                        <div class="user-avatar"><i class="bi bi-person"></i></div>
+                        <div>
+                            <div class="fw-medium mb-0">User #{{ booking.user_id }}</div>
+                            <small class="text-white-50">Booking ID: <span class="text-red">#{{ booking.id
+                                    }}</span></small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                        {% if booking.showtime.movie.poster %}
+                        <img src="{{ url_for('static', filename='movie-poster/' + booking.showtime.movie.poster) }}"
+                            class="movie-poster-sm" alt="Poster">
+                        {% else %}
+                        <div
+                            class="movie-poster-sm bg-dark d-flex align-items-center justify-content-center border border-secondary">
+                            <i class="bi bi-film text-white-50"></i>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <h6 class="fw-medium mb-1 text-truncate" style="max-width: 200px;">{{
+                                booking.showtime.movie.title }}</h6>
+                            <div class="small text-white-50"><i class="bi bi-geo-alt me-1"></i> {{
+                                booking.showtime.theatre.name }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <div class="fw-medium">{{ booking.showtime.show_date.strftime('%d %b, %Y') }}</div>
+                        <small class="text-white-50"><i class="bi bi-clock me-1"></i> {{
+                            booking.showtime.show_time.strftime('%I:%M %p') }}</small>
+                        <div class="mt-1 fw-medium text-success">₹{{ booking.total_amount }}</div>
+                    </div>
+
+                    <div class="col-6 col-md-3 d-flex flex-column flex-sm-row justify-content-end gap-2">
+                        <button class="btn btn-sm btn-outline-secondary text-white-50" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#details-{{ booking.id }}" aria-expanded="false">
+                            <i class="bi bi-list-ul me-1"></i> Details
+                        </button>
+                        <a href="{{ url_for('admin_delete_booking', booking_id=booking.id) }}"
+                            class="btn btn-sm btn-red-outline"
+                            onclick="return confirm('Are you sure you want to cancel this ticket?')">
+                            <i class="bi bi-x-lg me-1"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapse" id="details-{{ booking.id }}">
+                <div class="booking-details-panel p-4">
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+                            <h6 class="text-white-50 small fw-medium text-uppercase mb-2" style="letter-spacing: 1px;">
+                                Transaction Status</h6>
+                            {% if booking.status == 'cancelled' %}
+                            <span
+                                class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill border border-danger-subtle fw-normal">
+                                <i class="bi bi-slash-circle me-1"></i> Cancelled
+                            </span>
+                            {% else %}
+                            <span
+                                class="badge bg-success-subtle text-success px-3 py-2 rounded-pill border border-success-subtle fw-normal">
+                                <i class="bi bi-check-circle me-1"></i> Confirmed
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6 class="text-white-50 small fw-medium text-uppercase mb-2" style="letter-spacing: 1px;">
+                                Reserved Seats</h6>
+                            <div>
+                                {% if booking.booking_seats %}
+                                {% for bs in booking.booking_seats %}
+                                <span class="seat-chip"><i class="bi bi-display text-white-50"></i> {{ bs.seat.seat_row
+                                    }}{{ bs.seat.seat_number }}</span>
+                                {% endfor %}
+                                {% elif booking.seats %}
+                                {% for seat in booking.seats %}
+                                <span class="seat-chip"><i class="bi bi-display text-white-50"></i> {{ seat }}</span>
+                                {% endfor %}
+                                {% else %}
+                                <span class="text-white-50 small fst-italic">No seat data available</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6 class="text-white-50 small fw-medium text-uppercase mb-2" style="letter-spacing: 1px;">
+                                Payment Info</h6>
+                            <div class="small text-white-50">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Subtotal:</span>
+                                    <span class="text-white">₹{{ (booking.total_amount * 0.82) | round | int }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Taxes & Fees (18%):</span>
+                                    <span class="text-white">₹{{ (booking.total_amount * 0.18) | round | int }}</span>
+                                </div>
+                                <hr class="my-2" style="border-color: var(--border);">
+                                <div class="d-flex justify-content-between text-success fw-medium">
+                                    <span>Grand Total:</span>
+                                    <span>₹{{ booking.total_amount }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        {% else %}
+        <div class="text-center py-5 custom-card border-0">
+            <div class="display-1 text-white-50 mb-3 opacity-25">
+                <i class="bi bi-ticket-perforated"></i>
+            </div>
+            <h4 class="fw-medium text-white">No Bookings Found</h4>
+            <p class="text-white-50">There are currently no ticket reservations in the system.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const dateFilter = document.getElementById("dateFilter");
+        const statusFilter = document.getElementById("statusFilter");
+        const bookingRows = document.querySelectorAll(".booking-row");
+
+        function filterBookings() {
+            let searchValue = searchInput.value.toLowerCase();
+            let dateValue = dateFilter.value;
+            let statusValue = statusFilter.value.toLowerCase();
+
+            bookingRows.forEach(row => {
+                let textMatch = row.dataset.text.toLowerCase().includes(searchValue);
+                let dateMatch = (dateValue === "" || row.dataset.date === dateValue);
+                let statusMatch = (statusValue === "" || row.dataset.status.toLowerCase() === statusValue);
+
+                if (textMatch && dateMatch && statusMatch) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        searchInput.addEventListener("keyup", filterBookings);
+        dateFilter.addEventListener("change", filterBookings);
+        statusFilter.addEventListener("change", filterBookings);
+    });
+</script>
+{% endblock %}

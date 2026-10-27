@@ -1,0 +1,189 @@
+:root {
+    --red: #E8272A;
+    --red-dark: #B81D1F;
+    --bg: #0A0A0B;
+    --bg2: #111114;
+    --surface: #1E1E24;
+    --surface2: #26262E;
+    --text: #F2F0EB;
+    --text2: #9A9898;
+    --text3: #5C5C60;
+    --border: rgba(255, 255, 255, 0.07);
+    --border2: rgba(255, 255, 255, 0.12);
+    --radius: 6px;
+    --radius-lg: 12px;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.cineseat-nav {
+    background: rgba(10, 10, 11, 0.97);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+}
+
+.nav-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--red) !important;
+    text-decoration: none;
+}
+
+.btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 7px 16px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+    border-color: var(--border2);
+    color: var(--text);
+}
+
+.nav-user {
+    color: var(--text2);
+    font-size: 13px;
+    text-decoration: none;
+    padding-left: 12px;
+}
+
+.nav-user:hover {
+    color: var(--text);
+}
+
+/* ── PROGRESS BAR ── */
+.step-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.step-completed {
+    color: var(--text2);
+}
+
+.step-completed .step-number {
+    background: var(--border2);
+    color: var(--text);
+}
+
+.step-active {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.step-active .step-number {
+    background: var(--red);
+    color: #fff;
+}
+
+.step-pending {
+    color: var(--text3);
+}
+
+.step-pending .step-number {
+    background: var(--surface2);
+}
+
+/* ── CUSTOM CARDS & FORMS ── */
+.custom-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.custom-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.custom-input::placeholder {
+    color: var(--text3);
+}
+
+.custom-input:focus {
+    border-color: var(--red);
+    background: var(--surface2);
+    box-shadow: 0 0 0 3px rgba(232, 39, 42, 0.15);
+}
+
+.custom-checkbox {
+    accent-color: var(--red);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.btn-red {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    width: 100%;
+    transition: 0.2s;
+}
+
+.btn-red:hover {
+    background: var(--red-dark);
+}
+
+.btn-outline-custom {
+    border: 1px solid var(--border2);
+    color: var(--text);
+    background: var(--surface);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    transition: 0.2s;
+}
+
+.btn-outline-custom:hover {
+    background: var(--surface2);
+    border-color: var(--text3);
+    color: #fff;
+}
+
+/* ── UTILITIES ── */
+hr.custom-hr {
+    border-color: var(--border) !important;
+    margin: 24px 0;
+}
+
+.text-muted-custom {
+    color: var(--text3);
+    font-size: 13px;
+}

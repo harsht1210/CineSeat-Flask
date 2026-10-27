@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Select Seats | CineSeat</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/seats.css') }}">
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg cineseat-nav fixed-top py-2">
+        <div class="container px-4 px-lg-5">
+            <a class="nav-brand" href="{{ url_for('index') }}">CineSeat</a>
+        </div>
+    </nav>
+
+    <div class="container flex-grow-1" style="margin-top: 100px;">
+
+        <div class="d-flex flex-nowrap overflow-auto gap-4 pb-3 mb-4 border-bottom"
+            style="border-color: var(--border)!important;">
+            <div class="d-flex align-items-center gap-2 step-completed text-nowrap">
+                <div class="step-number"><i class="bi bi-check fs-5"></i></div> Select Showtime
+            </div>
+            <div class="d-flex align-items-center gap-2 step-active text-nowrap">
+                <div class="step-number">2</div> Select Seats
+            </div>
+            <div class="d-flex align-items-center gap-2 step-pending text-nowrap">
+                <div class="step-number">3</div> Payment
+            </div>
+            <div class="d-flex align-items-center gap-2 step-pending text-nowrap">
+                <div class="step-number">4</div> Confirmation
+            </div>
+        </div>
+
+        <form method="post" action="{{ url_for('select_seats_post') }}">
+            <input type="hidden" name="showtime_id" value="{{ showtime.id }}">
+
+            <div class="row g-4 flex-column-reverse flex-lg-row">
+
+                <div class="col-lg-4 col-xl-3">
+                    <div class="custom-card p-4 position-sticky" style="top: 100px;">
+                        <h2 class="fs-4 mb-1" style="font-family: 'Bebas Neue', sans-serif;">{{ movie.title }}</h2>
+
+                        <div class="border-bottom pb-3 mb-3"
+                            style="border-color: var(--border)!important; font-size: 13px; color: var(--text2);">
+                            <div class="mb-1"><i class="bi bi-geo-alt me-2 text-secondary"></i>{{ theatre.name }}, {{
+                                theatre.location }}</div>
+                            <div class="mb-1"><i class="bi bi-calendar3 me-2 text-secondary"></i>{{
+                                showtime.show_time.strftime('%A, %b %d') }}</div>
+                            <div><i class="bi bi-clock me-2 text-secondary"></i>{{ showtime.show_time.strftime('%I:%M
+                                %p') }}</div>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Tickets</span>
+                            <span id="ticket-count">0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Seats</span>
+                            <span id="selected-seats-label" class="text-truncate"
+                                style="max-width: 120px; text-align: right;">-</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top"
+                            style="border-top-style: dashed!important; border-color: var(--border2)!important;">
+                            <span>Total</span>
+                            <span id="total-price" class="fs-5 fw-bold">₹0</span>
+                        </div>
+
+                        <button type="submit" class="btn-red mt-4" id="btn-checkout" disabled>Proceed to
+                            Payment</button>
+                    </div>
+                </div>
+
+                <div class="col-lg-8 col-xl-9">
+                    <div class="custom-card p-3 p-md-5 text-center">
+
+
+                        <div class="seat-map-container">
+                            {% for seat_type, rows in grouped.items() %}
+                            <div class="my-4 text-uppercase tracking-wide"
+                                style="font-size: 11px; color: var(--text3); letter-spacing: 2px;">
+                                {{ seat_type }}
+                            </div>
+
+                            {% for row_label, seats in rows.items() %}
+                            <div class="seat-row">
+                                <div class="row-label">{{ row_label }}</div>
+
+                                {% for seat in seats %}
+                                {% if loop.index == 6 %}<div class="seat-gap"></div>{% endif %}
+                                <label class="seat">
+                                    <input type="checkbox" name="seat_ids" value="{{ seat.id }}"
+                                        data-seat="{{ row_label }}{{ seat.seat_number }}" data-price="{{ seat.price }}"
+                                        class="seat-checkbox" {% if seat.is_booked or seat.locked_until %}disabled{%
+                                        endif %}>
+                                    <div class="seat-box"
+                                        title="Seat {{ row_label }}{{ seat.seat_number }} (₹{{ seat.price }})">
+                                        {{ seat.seat_number }}
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="screen-indicator my-5">Screen this way</div>
+                        <div class="d-flex justify-content-center flex-wrap gap-3 gap-md-4 mt-5 pt-4 border-top"
+                            style="border-color: var(--border)!important;">
+                            <div class="d-flex align-items-center gap-2" style="font-size: 12px; color: var(--text2);">
+                                <div class="legend-box"
+                                    style="background: var(--surface); border: 1px solid var(--border2);"></div>
+                                Available
+                            </div>
+                            <div class="d-flex align-items-center gap-2" style="font-size: 12px; color: var(--text2);">
+                                <div class="legend-box" style="background: var(--red);"></div> Selected
+                            </div>
+                            <div class="d-flex align-items-center gap-2" style="font-size: 12px; color: var(--text2);">
+                                <div class="legend-box d-flex align-items-center justify-content-center"
+                                    style="background: rgba(255,255,255,0.02);">
+                                    <i class="bi bi-x text-secondary" style="font-size: 14px;"></i>
+                                </div> Sold
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <footer class="text-center py-4 mt-auto border-top"
+        style="background: var(--bg); border-color: var(--border)!important; color: var(--text3); font-size: 13px;">
+        © 2026 CineSeat. All rights reserved.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const checkboxes = document.querySelectorAll('.seat-checkbox');
+        const ticketCountEl = document.getElementById('ticket-count');
+        const selectedSeatsLabel = document.getElementById('selected-seats-label');
+        const totalPriceEl = document.getElementById('total-price');
+        const btnCheckout = document.getElementById('btn-checkout');
+
+        checkboxes.forEach(box => box.addEventListener('change', () => {
+            let count = 0, total = 0, seats = [];
+            checkboxes.forEach(b => {
+                if (b.checked) {
+                    count++;
+                    total += parseInt(b.dataset.price || 0);
+                    seats.push(b.dataset.seat);
+                }
+            });
+            ticketCountEl.textContent = count;
+            selectedSeatsLabel.textContent = count > 0 ? seats.join(', ') : '-';
+            totalPriceEl.textContent = `₹${total}`;
+            btnCheckout.disabled = count === 0;
+        }));
+    </script>
+</body>
+
+</html>

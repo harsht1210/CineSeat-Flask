@@ -1,0 +1,223 @@
+{% extends "admin/layout.html" %}
+{% block title %}Add Movie | Admin CineSeat{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --red: #E8272A;
+        --red-dark: #B81D1F;
+        --bg: #0A0A0B;
+        --bg2: #111114;
+        --surface: #1E1E24;
+        --surface2: #26262E;
+        --text: #F2F0EB;
+        --text2: #9A9898;
+        --text3: #5C5C60;
+        --border: rgba(255, 255, 255, 0.07);
+    }
+
+
+    .custom-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-title {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text3);
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .custom-admin-input {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text) !important;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .custom-admin-input:focus {
+        border-color: var(--red) !important;
+        background: var(--surface2) !important;
+        box-shadow: 0 0 0 3px rgba(232, 39, 42, 0.15) !important;
+    }
+
+    .custom-admin-input::placeholder {
+        color: var(--text3);
+    }
+
+    input[type=file].custom-admin-input::file-selector-button {
+        background: var(--surface2);
+        color: var(--text2);
+        border: none;
+        border-right: 1px solid var(--border);
+        padding: 10px 16px;
+        margin: -10px 16px -10px -16px;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    input[type=file].custom-admin-input::file-selector-button:hover {
+        background: var(--border);
+        color: var(--text);
+    }
+
+    .btn-red {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+    .btn-red:hover {
+        background: var(--red-dark);
+        color: #fff;
+    }
+
+    .btn-outline-custom {
+        border: 1px solid var(--border2);
+        color: var(--text2);
+        background: transparent;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+    .btn-outline-custom:hover {
+        background: var(--surface);
+        color: var(--text);
+        border-color: var(--text3);
+    }
+
+    .form-label {
+        font-size: 13px;
+        color: var(--text2);
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+</style>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-12">
+        <a href="{{ url_for('admin_movies') }}"
+            class="text-decoration-none text-white-50 small mb-2 d-inline-block hover-white">
+            <i class="bi bi-arrow-left me-1"></i> Back to Movies
+        </a>
+        <h3 class="fw-medium mb-1 text-white"><i class="bi bi-film text-red me-2"></i> Add New Movie</h3>
+        <p class="text-white-50 small mb-0">Fill in the details below to add a new film to the CineSeat catalog.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10 col-xxl-8">
+        <div class="custom-card p-4 p-md-5">
+
+            <form method="POST" action="{{ url_for('admin_add_movie') }}" enctype="multipart/form-data">
+
+                <div class="section-title mt-2"><i class="bi bi-info-circle me-2"></i> Basic Details</div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-12">
+                        <label class="form-label">Movie Title <span class="text-red">*</span></label>
+                        <input type="text" name="title" class="form-control custom-admin-input"
+                            placeholder="e.g. Avengers: Endgame" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Synopsis / Description</label>
+                        <textarea name="description" class="form-control custom-admin-input" rows="3"
+                            placeholder="A brief summary of the movie..."></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Language</label>
+                        <input type="text" name="language" class="form-control custom-admin-input"
+                            placeholder="e.g. English, Hindi">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Genres</label>
+                        <input type="text" name="genres" class="form-control custom-admin-input"
+                            placeholder="e.g. Action, Sci-Fi, Drama">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Certificate</label>
+                        <input type="text" name="certificate" class="form-control custom-admin-input"
+                            placeholder="e.g. U/A, A, PG-13">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" name="duration" class="form-control custom-admin-input"
+                            placeholder="e.g. 181">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Rating</label>
+                        <input type="number" step="0.1" name="rating" class="form-control custom-admin-input"
+                            placeholder="e.g. 8.4">
+                    </div>
+                </div>
+
+                <div class="section-title"><i class="bi bi-image me-2"></i> Media</div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <label class="form-label">Movie Poster (Vertical)</label>
+                        <input type="file" name="poster" class="form-control custom-admin-input" accept="image/*">
+                        <div class="form-text text-white-50 mt-2" style="font-size: 11px;">Recommended size: 400x600px.
+                            Used in grid layouts.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Hero Banner (Horizontal)</label>
+                        <input type="file" name="featured_image" class="form-control custom-admin-input"
+                            accept="image/*">
+                        <div class="form-text text-white-50 mt-2" style="font-size: 11px;">Recommended size:
+                            1920x1080px. Used in the homepage carousel.</div>
+                    </div>
+                </div>
+
+                <div class="section-title"><i class="bi bi-gear me-2"></i> Visibility Settings</div>
+                <div class="row g-4 mb-5">
+                    <div class="col-12">
+                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                            <input type="checkbox" name="is_featured" id="is_featured" class="form-check-input mt-0"
+                                style="cursor: pointer; width: 40px; height: 20px;">
+                            <label class="form-check-label text-white pt-1" for="is_featured" style="cursor: pointer;">
+                                Feature on Homepage Carousel
+                            </label>
+                        </div>
+                        <div class="text-white-50 ms-5 mt-1" style="font-size: 12px; padding-left: 6px;">If checked,
+                            this movie will appear in the main sliding banner.</div>
+                    </div>
+                </div>
+
+                <hr style="border-color: var(--border); margin: 32px 0;">
+                <div class="d-flex gap-3 justify-content-end">
+                    <a href="{{ url_for('admin_movies') }}"
+                        class="btn btn-outline-custom text-decoration-none">Cancel</a>
+                    <button type="submit" class="btn btn-red px-5">
+                        <i class="bi bi-check-lg me-1"></i> Add Movie
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

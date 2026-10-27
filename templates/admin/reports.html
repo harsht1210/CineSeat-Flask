@@ -1,0 +1,345 @@
+{% extends "admin/layout.html" %}
+{% block title %}Reports & Analytics | Admin CineSeat{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --red: #E8272A;
+        --red-dark: #B81D1F;
+        --bg: #0A0A0B;
+        --bg2: #111114;
+        --surface: #1E1E24;
+        --surface2: #26262E;
+        --text: #F2F0EB;
+        --text2: #9A9898;
+        --text3: #5C5C60;
+        --border: rgba(255, 255, 255, 0.07);
+    }
+
+    .kpi-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--border2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .kpi-icon-bg {
+        position: absolute;
+        right: -15px;
+        bottom: -25px;
+        font-size: 6.5rem;
+        opacity: 0.03;
+        transform: rotate(-15deg);
+        z-index: 0;
+        color: #fff;
+    }
+
+    .custom-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 350px;
+        width: 100%;
+    }
+
+    .leaderboard-row {
+        transition: background-color 0.2s;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .leaderboard-row:hover {
+        background-color: var(--surface);
+    }
+
+    .leaderboard-row:last-child {
+        border-bottom: none;
+    }
+
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .rank-1 {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .rank-2 {
+        background: rgba(226, 232, 240, 0.1);
+        color: #e2e8f0;
+        border: 1px solid rgba(226, 232, 240, 0.2);
+    }
+
+    .rank-3 {
+        background: rgba(217, 119, 6, 0.15);
+        color: #fb923c;
+        border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+
+    .rank-other {
+        background: var(--surface);
+        color: var(--text3);
+        border: 1px solid var(--border2);
+    }
+</style>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-12">
+        <h3 class="fw-medium mb-1 text-white"><i class="bi bi-pie-chart text-red me-2"></i> Analytics Overview</h3>
+        <p class="text-white-50 small mb-0">Track revenue, bookings, and system performance in real-time.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100 p-4">
+            <i class="bi bi-wallet2 kpi-icon-bg"></i>
+            <div class="position-relative z-1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-white-50 small fw-medium text-uppercase" style="letter-spacing: 1px;">Total
+                        Revenue</span>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; background: rgba(34, 197, 94, 0.1);">
+                        <i class="bi bi-currency-rupee text-success fs-5"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-white mb-0">₹{{ total_revenue }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100 p-4">
+            <i class="bi bi-ticket-perforated kpi-icon-bg"></i>
+            <div class="position-relative z-1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-white-50 small fw-medium text-uppercase" style="letter-spacing: 1px;">Total
+                        Bookings</span>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; background: rgba(56, 189, 248, 0.1);">
+                        <i class="bi bi-receipt text-info fs-5"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-white mb-0">{{ total_bookings }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100 p-4">
+            <i class="bi bi-graph-up-arrow kpi-icon-bg"></i>
+            <div class="position-relative z-1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-white-50 small fw-medium text-uppercase" style="letter-spacing: 1px;">Today's
+                        Revenue</span>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05);">
+                        <i class="bi bi-graph-up text-white fs-5"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-white mb-0">₹{{ today_revenue }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100 p-4" style="border-color: rgba(232, 39, 42, 0.3);">
+            <i class="bi bi-calendar-event kpi-icon-bg text-red"></i>
+            <div class="position-relative z-1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-white-50 small fw-medium text-uppercase" style="letter-spacing: 1px;">Today's
+                        Bookings</span>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; background: rgba(232, 39, 42, 0.1);">
+                        <i class="bi bi-lightning-charge text-red fs-5"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-white mb-0">{{ today_bookings }}</h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-12 col-lg-8">
+        <div class="custom-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-medium text-white mb-0">Revenue Trend</h5>
+                <span class="badge fw-normal px-3 py-2"
+                    style="background: var(--surface); color: var(--text2); border: 1px solid var(--border2);">
+                    <i class="bi bi-calendar3 me-1"></i> Last 7 Days
+                </span>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="custom-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-medium text-white mb-0">Top Performing Movies</h5>
+                <i class="bi bi-trophy-fill text-warning"></i>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead style="border-bottom: 1px solid var(--border);">
+                        <tr>
+                            <th class="text-white-50 small fw-medium text-uppercase py-2"
+                                style="background: transparent;">Rank</th>
+                            <th class="text-white-50 small fw-medium text-uppercase py-2"
+                                style="background: transparent;">Movie Title</th>
+                            <th class="text-white-50 small fw-medium text-uppercase text-end py-2"
+                                style="background: transparent;">Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-white">
+                        {% for movie in top_movies %}
+                        <tr class="leaderboard-row text-white">
+                            <td class="py-3" style="width: 50px; background-color: transparent;">
+                                {% if loop.index == 1 %}
+                                <div class="rank-badge rank-1"><i class="bi bi-star-fill" style="font-size: 10px;"></i>
+                                </div>
+                                {% elif loop.index == 2 %}
+                                <div class="rank-badge rank-2">2</div>
+                                {% elif loop.index == 3 %}
+                                <div class="rank-badge rank-3">3</div>
+                                {% else %}
+                                <div class="rank-badge rank-other">{{ loop.index }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 fw-medium text-white" style="background-color: transparent;">{{ movie.title
+                                }}</td>
+                            <td class="py-3 text-end" style="background-color: transparent;">
+                                <span class="badge px-3 py-2 rounded-pill fw-medium"
+                                    style="background: rgba(232, 39, 42, 0.1); color: var(--red); border: 1px solid rgba(232, 39, 42, 0.2);">
+                                    {{ movie.total_bookings }} <i class="bi bi-ticket-perforated ms-1"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr class="bg-black text-white">
+                            <td colspan="3" class="text-center py-5 text-white-50"
+                                style="background-color: transparent;">
+                                <i class="bi bi-film fs-1 mb-2 opacity-25 d-block"></i>
+                                <p class="mb-0 small">No movie data available yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        let gradient = ctx.createLinearGradient(0, 0, 0, 350);
+        gradient.addColorStop(0, 'rgba(232, 39, 42, 0.4)');
+        gradient.addColorStop(1, 'rgba(232, 39, 42, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | tojson }},
+        datasets: [{
+            label: 'Daily Revenue (₹)',
+            data: {{ revenue_data | tojson }},
+        borderColor: '#E8272A',
+        backgroundColor: gradient,
+        borderWidth: 3,
+        pointBackgroundColor: '#111114',
+        pointBorderColor: '#E8272A',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: true,
+        tension: 0.4 
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: '#1E1E24',
+                titleColor: '#9A9898',
+                bodyColor: '#F2F0EB',
+                borderColor: 'rgba(255,255,255,0.07)',
+                borderWidth: 1,
+                titleFont: { size: 13, family: "'DM Sans', sans-serif", weight: 'normal' },
+                bodyFont: { size: 14, weight: 'bold', family: "'DM Sans', sans-serif" },
+                padding: 12,
+                cornerRadius: 8,
+                displayColors: false,
+                callbacks: {
+                    label: function (context) {
+                        return '₹ ' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.05)',
+                    drawBorder: false
+                },
+                ticks: {
+                    font: { family: "'DM Sans', sans-serif" },
+                    color: '#9A9898',
+                    callback: function (value) {
+                        return '₹' + value;
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    font: { family: "'DM Sans', sans-serif" },
+                    color: '#9A9898'
+                }
+            }
+        }
+    }
+        });
+    });
+</script>
+{% endblock %}

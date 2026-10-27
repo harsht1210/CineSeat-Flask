@@ -1,0 +1,311 @@
+{% extends "admin/layout.html" %}
+{% block title %}Manage Movies | Admin CineSeat{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --red: #E8272A;
+        --red-dark: #B81D1F;
+        --bg: #0A0A0B;
+        --bg2: #111114;
+        --surface: #1E1E24;
+        --surface2: #26262E;
+        --text: #F2F0EB;
+        --text2: #9A9898;
+        --text3: #5C5C60;
+        --border: rgba(255, 255, 255, 0.07);
+    }
+
+    .cineseat-card {
+        background: var(--bg2) !important;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .cineseat-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--border2);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .poster-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 340px;
+    }
+
+    .poster-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .cineseat-card:hover .poster-image {
+        transform: scale(1.05);
+    }
+
+    .poster-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(10, 10, 11, 0.7) 0%, transparent 25%, transparent 70%, rgba(10, 10, 11, 0.9) 100%);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .floating-badges {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .badge-glass {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid var(--border2);
+        color: var(--text);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .card-actions {
+        border-top: 1px solid var(--border);
+        background-color: var(--surface);
+        padding: 12px 16px;
+    }
+
+    .btn-action {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: var(--text2);
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+        font-size: 13px;
+    }
+
+    .btn-action:hover {
+        background: var(--surface2);
+        border-color: var(--border2);
+        color: var(--text);
+    }
+
+    .btn-action.text-danger:hover {
+        color: var(--red) !important;
+        border-color: var(--red);
+    }
+
+    .custom-admin-input {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text) !important;
+    }
+
+    .custom-admin-input:focus {
+        border-color: var(--red) !important;
+        box-shadow: none;
+    }
+
+    .custom-admin-input::placeholder {
+        color: var(--text3);
+    }
+
+    .btn-red {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        transition: 0.2s;
+    }
+
+    .btn-red:hover {
+        background: var(--red-dark);
+        color: #fff;
+    }
+
+    .offcanvas-dark {
+        background-color: var(--bg2);
+        border-left: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    .offcanvas-dark .offcanvas-header {
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+    }
+</style>
+
+<div class="row mb-5 align-items-center">
+    <div class="col-12 col-md-4 mb-3 mb-md-0">
+        <h3 class="fw-medium mb-1 text-white"><i class="bi bi-camera-reels text-red me-2"></i> Manage Movies</h3>
+        <p class="text-white-50 small mb-0">Add, edit, or remove films from the catalog.</p>
+    </div>
+
+    <div class="col-12 col-md-8 text-md-end">
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-md-end align-items-sm-center">
+            <div class="input-group shadow-sm" style="max-width: 350px;">
+                <span class="input-group-text custom-admin-input border-end-0"><i
+                        class="bi bi-search text-white-50"></i></span>
+                <input type="text" id="movieSearch" class="form-control custom-admin-input border-start-0 ps-0"
+                    placeholder="Search by title or language...">
+            </div>
+            <a href="{{ url_for('admin_add_movie') }}" class="btn btn-red shadow-sm px-4 rounded-3">
+                <i class="bi bi-plus-lg me-2"></i> New Movie
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4" id="moviesGrid">
+    {% for movie in movies %}
+    <div class="col movie-card-container">
+        <div class="card h-100 cineseat-card border-0">
+
+            <div class="poster-wrapper">
+                <div class="poster-overlay"></div>
+                <div class="floating-badges">
+                    <span class="badge badge-glass px-2 py-1">{{ movie.certificate }}</span>
+                    {% if movie.is_featured %}
+                    <span class="badge bg-warning text-dark shadow-sm fw-bold"><i class="bi bi-star-fill me-1"></i>
+                        Featured</span>
+                    {% endif %}
+                </div>
+
+                {% if movie.poster %}
+                <img src="{{ url_for('static', filename='movie-poster/' + movie.poster) }}" class="poster-image"
+                    alt="{{ movie.title }}">
+                {% else %}
+                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white-50"
+                    style="background: var(--surface);">
+                    <i class="bi bi-film fa-3x mb-3 opacity-50" style="font-size: 3rem;"></i>
+                    <span class="small fw-medium">No Poster Available</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-body p-4 d-flex flex-column bg-transparent">
+                <h5 class="card-title fw-medium text-truncate mb-1 movie-title text-white" title="{{ movie.title }}">{{
+                    movie.title }}</h5>
+                <p class="card-text small text-white-50 text-truncate mb-3" title="{{ movie.genres }}">{{ movie.genres
+                    }}</p>
+
+                <div class="d-flex align-items-center mt-auto">
+                    <span class="badge text-white-50 border movie-lang px-2 py-1"
+                        style="background: var(--surface); border-color: var(--border2)!important;">
+                        <i class="bi bi-translate me-1"></i> {{ movie.language }}
+                    </span>
+                    <span class="ms-auto small text-white-50 fw-medium"><i class="bi bi-clock me-1"></i> {{
+                        movie.duration }} min</span>
+                </div>
+            </div>
+
+            <div class="card-actions d-flex gap-2">
+                <button class="btn btn-action flex-grow-1" data-bs-toggle="offcanvas"
+                    data-bs-target="#editMovie{{ movie.id }}">
+                    <i class="bi bi-pencil me-1"></i> Edit
+                </button>
+                <a href="{{ url_for('admin_delete_movie', movie_id=movie.id) }}"
+                    class="btn btn-action flex-grow-1 text-danger"
+                    onclick="return confirm('Are you sure you want to permanently delete {{ movie.title }}?')">
+                    <i class="bi bi-trash3 me-1"></i> Delete
+                </a>
+            </div>
+        </div>
+
+        <div class="offcanvas offcanvas-end text-start offcanvas-dark" tabindex="-1" id="editMovie{{ movie.id }}">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title fw-medium">Edit Movie: <span class="text-red">{{ movie.title }}</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body">
+                <form action="{{ url_for('admin_edit_movie', movie_id=movie.id) }}" method="POST"
+                    enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small mb-1">Movie Title</label>
+                        <input type="text" name="title" class="form-control custom-admin-input"
+                            value="{{ movie.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small mb-1">Movie Poster</label>
+                        <input type="file" name="poster" class="form-control custom-admin-input" accept="image/*">
+                        <div class="form-text text-white-50" style="font-size: 11px;">Leave empty to keep current
+                            poster.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small mb-1">Hero Banner Image</label>
+                        <input type="file" name="featured_image" class="form-control custom-admin-input"
+                            accept="image/*">
+                        <div class="form-text text-white-50" style="font-size: 11px;">Upload a wide 16:9 image for the
+                            homepage carousel.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small mb-1">Language</label>
+                        <input type="text" name="language" class="form-control custom-admin-input"
+                            value="{{ movie.language }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small mb-1">Genres</label>
+                        <input type="text" name="genres" class="form-control custom-admin-input"
+                            value="{{ movie.genres }}">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-white-50 small mb-1">Certificate</label>
+                            <input type="text" name="certificate" class="form-control custom-admin-input"
+                                value="{{ movie.certificate }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-white-50 small mb-1">Duration (min)</label>
+                            <input type="number" name="duration" class="form-control custom-admin-input"
+                                value="{{ movie.duration }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small mb-1">Rating</label>
+                        <input type="number" step="0.1" name="rating" class="form-control custom-admin-input"
+                            value="{{ movie.rating }}">
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" name="is_featured" id="feat{{ movie.id }}"
+                                style="cursor: pointer;" {% if movie.is_featured %}checked{% endif %}>
+                            <label class="form-check-label text-white-50" for="feat{{ movie.id }}"
+                                style="cursor: pointer;">Feature on Homepage</label>
+                        </div>
+                    </div>
+                    <hr style="border-color: var(--border);">
+                    <button type="submit" class="btn btn-red w-100 py-2 rounded-3">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <div class="display-1 text-white-50 mb-3 opacity-25">
+            <i class="bi bi-camera-reels"></i>
+        </div>
+        <h4 class="fw-medium text-white">No Movies Found</h4>
+        <p class="text-white-50">Click "New Movie" to add films to your catalog.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.getElementById("movieSearch").addEventListener("keyup", function () {
+        let filter = this.value.toLowerCase();
+        let cards = document.querySelectorAll("#moviesGrid .movie-card-container");
+
+        cards.forEach(card => {
+            let title = card.querySelector(".movie-title").innerText.toLowerCase();
+            let lang = card.querySelector(".movie-lang").innerText.toLowerCase();
+            card.style.display = (title.includes(filter) || lang.includes(filter)) ? "" : "none";
+        });
+    });
+</script>
+{% endblock %}

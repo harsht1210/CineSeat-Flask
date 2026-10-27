@@ -1,0 +1,244 @@
+{% extends "admin/layout.html" %}
+{% block title %}Manage Users | Admin CineSeat{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --red: #E8272A;
+        --red-dark: #B81D1F;
+        --bg: #0A0A0B;
+        --bg2: #111114;
+        --surface: #1E1E24;
+        --surface2: #26262E;
+        --text: #F2F0EB;
+        --text2: #9A9898;
+        --text3: #5C5C60;
+        --border: rgba(255, 255, 255, 0.07);
+    }
+
+    .cineseat-card {
+        background: var(--bg2) !important;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .cineseat-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--border2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(232, 39, 42, 0.2);
+    }
+
+    .role-badge {
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .role-super {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .role-admin {
+        background: rgba(232, 39, 42, 0.1);
+        color: var(--red);
+        border: 1px solid rgba(232, 39, 42, 0.3);
+    }
+
+    .role-manager {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .role-staff {
+        background: rgba(2, 132, 199, 0.15);
+        color: #38bdf8;
+        border: 1px solid rgba(2, 132, 199, 0.3);
+    }
+
+    .role-user {
+        background: var(--surface);
+        color: var(--text2);
+        border: 1px solid var(--border2);
+    }
+
+    .custom-admin-input {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text) !important;
+        font-size: 14px;
+    }
+
+    .custom-admin-input:focus {
+        border-color: var(--red) !important;
+        box-shadow: none;
+    }
+
+    .custom-admin-input::placeholder {
+        color: var(--text3);
+    }
+
+    select.custom-admin-input option {
+        background: var(--surface2);
+        color: var(--text);
+    }
+
+    .input-group-text.custom-admin-text {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text3) !important;
+    }
+
+    .btn-red {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        transition: 0.2s;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .btn-red:hover {
+        background: var(--red-dark);
+        color: #fff;
+    }
+
+    .info-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 0;
+    }
+</style>
+
+<div class="row mb-5 align-items-center">
+    <div class="col-12 col-md-5 mb-3 mb-md-0">
+        <h3 class="fw-medium mb-1 text-white"><i class="bi bi-people text-red me-2"></i> User Management</h3>
+        <p class="text-white-50 small mb-0">Control account access and assign administrative roles.</p>
+    </div>
+
+    <div class="col-12 col-md-7 text-md-end">
+        <div class="input-group shadow-sm ms-md-auto" style="max-width: 350px;">
+            <span class="input-group-text custom-admin-text border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="userSearch" class="form-control custom-admin-input border-start-0 ps-0"
+                placeholder="Search by name or email...">
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="usersGrid">
+    {% for user in users %}
+    <div class="col user-card-container">
+        <div class="card h-100 cineseat-card p-4 border-0">
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="avatar-circle">
+                    {{ user.name[0]|upper if user.name else 'U' }}
+                </div>
+                <div class="overflow-hidden">
+                    <h5 class="fw-medium text-white mb-0 text-truncate user-name" title="{{ user.name }}">{{ user.name
+                        }}</h5>
+                    <p class="text-white-50 small mb-0 text-truncate user-email" title="{{ user.email }}">{{ user.email
+                        }}</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="small text-white-50 text-uppercase mb-2" style="letter-spacing: 1px; font-size: 11px;">
+                    Current Access Level</div>
+
+                {% if user.role == "super_admin" %}
+                <span class="role-badge role-super"><i class="bi bi-star-fill text-warning"></i> Super Admin</span>
+                {% elif user.role == "admin" %}
+                <span class="role-badge role-admin"><i class="bi bi-shield-lock"></i> Admin</span>
+                {% elif user.role == "manager" %}
+                <span class="role-badge role-manager"><i class="bi bi-list-check"></i> Manager</span>
+                {% elif user.role == "staff" %}
+                <span class="role-badge role-staff"><i class="bi bi-person-badge"></i> Staff</span>
+                {% else %}
+                <span class="role-badge role-user"><i class="bi bi-person"></i> Standard User</span>
+                {% endif %}
+            </div>
+
+            <div class="mt-auto pt-3 border-top" style="border-color: var(--border)!important;">
+                {% if user.role == "super_admin" %}
+                <div class="text-center info-box">
+                    <span class="text-white-50 small fw-medium"><i class="bi bi-lock-fill me-1"></i> Core System Account
+                        (Protected)</span>
+                </div>
+                {% elif user.id == current_user.id %}
+                <div class="text-center info-box" style="border-color: rgba(232, 39, 42, 0.3);">
+                    <span class="text-red small fw-medium"><i class="bi bi-person-circle me-1"></i> This is your
+                        account</span>
+                </div>
+                {% else %}
+                <form method="post" action="{{ url_for('admin_update_user_role', user_id=user.id) }}"
+                    class="d-flex gap-2">
+                    <select name="role" class="form-select custom-admin-input">
+                        <option value="user" {% if user.role=="user" %}selected{% endif %}>User</option>
+                        <option value="staff" {% if user.role=="staff" %}selected{% endif %}>Staff</option>
+                        <option value="manager" {% if user.role=="manager" %}selected{% endif %}>Manager</option>
+                        <option value="admin" {% if user.role=="admin" %}selected{% endif %}>Admin</option>
+                    </select>
+                    <button type="submit" class="btn btn-red px-3 rounded-2 shadow-sm">
+                        Update
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="text-center py-5 custom-card border-0" style="background: var(--bg2);">
+            <div class="display-1 text-white-50 mb-3 opacity-25">
+                <i class="bi bi-person-x"></i>
+            </div>
+            <h4 class="fw-medium text-white">No Users Found</h4>
+            <p class="text-white-50">There are currently no registered users matching your search.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.getElementById("userSearch").addEventListener("keyup", function () {
+        let filter = this.value.toLowerCase();
+        let cards = document.querySelectorAll("#usersGrid .user-card-container");
+
+        cards.forEach(card => {
+            let name = card.querySelector(".user-name").innerText.toLowerCase();
+            let email = card.querySelector(".user-email").innerText.toLowerCase();
+
+            card.style.display = (name.includes(filter) || email.includes(filter)) ? "" : "none";
+        });
+    });
+</script>
+
+{% endblock %}

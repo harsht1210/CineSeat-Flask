@@ -1,0 +1,381 @@
+{% extends "admin/layout.html" %}
+{% block title %}Manage Theatres | Admin CineSeat{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --red: #E8272A;
+        --red-dark: #B81D1F;
+        --bg: #0A0A0B;
+        --bg2: #111114;
+        --surface: #1E1E24;
+        --surface2: #26262E;
+        --text: #F2F0EB;
+        --text2: #9A9898;
+        --text3: #5C5C60;
+        --border: rgba(255, 255, 255, 0.07);
+    }
+
+    .cineseat-card {
+        background: var(--bg2) !important;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-left: 4px solid var(--red);
+    }
+
+    .cineseat-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--border2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .theatre-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: rgba(232, 39, 42, 0.1);
+        color: var(--red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        border: 1px solid rgba(232, 39, 42, 0.2);
+    }
+
+ 
+    .feature-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .feat-imax {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .feat-3d {
+        background: rgba(2, 132, 199, 0.15);
+        color: #38bdf8;
+        border: 1px solid rgba(2, 132, 199, 0.3);
+    }
+
+    .feat-4dx {
+        background: rgba(37, 99, 235, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+
+    .feat-dolby {
+        background: rgba(217, 119, 6, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+
+    .feat-standard {
+        background: var(--surface);
+        color: var(--text2);
+        border: 1px solid var(--border2);
+    }
+
+    .custom-admin-input {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text) !important;
+    }
+
+    .custom-admin-input:focus {
+        border-color: var(--red) !important;
+        box-shadow: none;
+    }
+
+    .custom-admin-input::placeholder {
+        color: var(--text3);
+    }
+
+    .input-group-text.custom-admin-text {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text3) !important;
+    }
+
+    .btn-red {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        transition: 0.2s;
+    }
+
+    .btn-red:hover {
+        background: var(--red-dark);
+        color: #fff;
+    }
+
+    .btn-action {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text2);
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+        font-size: 13px;
+    }
+
+    .btn-action:hover {
+        background: var(--surface2);
+        border-color: var(--border2);
+        color: var(--text);
+    }
+
+    .btn-action.text-danger:hover {
+        color: var(--red) !important;
+        border-color: var(--red);
+    }
+
+    .dark-modal {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text);
+    }
+
+    .dark-modal .modal-header {
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .dark-modal .modal-footer {
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+
+    .feature-card:hover {
+        border-color: var(--border2);
+    }
+
+    .form-check-input {
+        cursor: pointer;
+        background-color: var(--bg);
+        border-color: var(--border);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--red);
+        border-color: var(--red);
+    }
+</style>
+
+<div class="row mb-5 align-items-center">
+    <div class="col-12 col-md-5 mb-3 mb-md-0">
+        <h3 class="fw-medium mb-1 text-white"><i class="bi bi-building text-red me-2"></i> Manage Theatres</h3>
+        <p class="text-white-50 small mb-0">Configure multiplex locations and screen features.</p>
+    </div>
+
+    <div class="col-12 col-md-7 text-md-end">
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-md-end align-items-sm-center">
+            <div class="input-group shadow-sm" style="max-width: 300px;">
+                <span class="input-group-text custom-admin-text border-end-0"><i
+                        class="bi bi-search text-white-50"></i></span>
+                <input type="text" id="theatreSearch" class="form-control custom-admin-input border-start-0 ps-0"
+                    placeholder="Search locations...">
+            </div>
+
+            <button class="btn btn-red shadow-sm px-4 rounded-3" data-bs-toggle="modal"
+                data-bs-target="#addTheatreModal">
+                <i class="bi bi-plus-lg me-2"></i> Add Theatre
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="theatresGrid">
+    {% for theatre in theatres %}
+    <div class="col theatre-card-container">
+        <div class="card h-100 cineseat-card p-4">
+
+            <div class="d-flex align-items-start gap-3 mb-3">
+                <div class="theatre-icon-wrapper">
+                    <i class="bi bi-camera-video"></i>
+                </div>
+                <div>
+                    <h5 class="fw-medium text-white mb-1 theatre-name">{{ theatre.name }}</h5>
+                    <p class="text-white-50 small mb-0 theatre-location">
+                        <i class="bi bi-geo-alt-fill text-red me-1"></i> {{ theatre.location }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="mb-4 mt-2">
+                <h6 class="text-white-50 small fw-medium text-uppercase mb-2" style="letter-spacing: 1px;">Supported
+                    Formats</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% if theatre.is_imax %}
+                    <span class="feature-badge feat-imax"><i class="bi bi-arrows-fullscreen"></i> IMAX</span>
+                    {% endif %}
+
+                    {% if theatre.is_3d %}
+                    <span class="feature-badge feat-3d"><i class="bi bi-badge-3d"></i> 3D</span>
+                    {% endif %}
+
+                    {% if theatre.is_4dx %}
+                    <span class="feature-badge feat-4dx"><i class="bi bi-wind"></i> 4DX</span>
+                    {% endif %}
+
+                    {% if theatre.is_dolby %}
+                    <span class="feature-badge feat-dolby"><i class="bi bi-speaker"></i> Dolby Atmos</span>
+                    {% endif %}
+
+                    {% if not theatre.is_imax and not theatre.is_3d and not theatre.is_4dx and not theatre.is_dolby %}
+                    <span class="feature-badge feat-standard">Standard 2D</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-auto d-flex gap-2 pt-3 border-top" style="border-color: var(--border)!important;">
+                <a href="{{ url_for('admin_edit_theatre', theatre_id=theatre.id) }}"
+                    class="btn btn-action flex-grow-1 text-primary">
+                    <i class="bi bi-pencil me-1"></i> Edit
+                </a>
+                <a href="{{ url_for('admin_delete_theatre', theatre_id=theatre.id) }}"
+                    class="btn btn-action flex-grow-1 text-danger"
+                    onclick="return confirm('Are you sure you want to delete {{ theatre.name }}?')">
+                    <i class="bi bi-trash3 me-1"></i> Delete
+                </a>
+            </div>
+
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="text-center py-5 custom-card border-0" style="background: var(--bg2);">
+            <div class="display-1 text-white-50 mb-3 opacity-25">
+                <i class="bi bi-building"></i>
+            </div>
+            <h4 class="fw-medium text-white">No Theatres Found</h4>
+            <p class="text-white-50 mb-4">You haven't added any cinema locations to the system yet.</p>
+            <button class="btn btn-red px-4 rounded-3" data-bs-toggle="modal" data-bs-target="#addTheatreModal">
+                <i class="bi bi-plus-lg me-2"></i> Add Your First Theatre
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="modal fade" id="addTheatreModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content dark-modal shadow-lg">
+
+            <form method="POST" action="{{ url_for('admin_add_theatre') }}">
+
+                <div class="modal-header px-4 py-3">
+                    <h5 class="modal-title fw-medium"><i class="bi bi-building text-red me-2"></i> Add New Theatre</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small mb-1">Theatre Name</label>
+                            <input type="text" name="name" class="form-control custom-admin-input"
+                                placeholder="e.g., CineSeat Grand" required>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label text-white-50 small mb-1">City / Location</label>
+                            <div class="input-group">
+                                <span class="input-group-text custom-admin-text border-end-0"><i
+                                        class="bi bi-geo-alt"></i></span>
+                                <input type="text" name="location"
+                                    class="form-control custom-admin-input border-start-0 ps-0"
+                                    placeholder="e.g., Mumbai, Delhi" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-white-50 small fw-medium text-uppercase mb-3" style="letter-spacing: 1px;">Screen
+                        Features Available</h6>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="feature-card p-2">
+                                <div class="form-check form-switch d-flex align-items-center gap-2 m-0">
+                                    <input type="checkbox" name="is_imax" class="form-check-input m-0" id="checkImax">
+                                    <label class="form-check-label text-white small mt-1" for="checkImax">IMAX</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="feature-card p-2">
+                                <div class="form-check form-switch d-flex align-items-center gap-2 m-0">
+                                    <input type="checkbox" name="is_3d" class="form-check-input m-0" id="check3d">
+                                    <label class="form-check-label text-white small mt-1" for="check3d">3D Ready</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="feature-card p-2">
+                                <div class="form-check form-switch d-flex align-items-center gap-2 m-0">
+                                    <input type="checkbox" name="is_4dx" class="form-check-input m-0" id="check4dx">
+                                    <label class="form-check-label text-white small mt-1" for="check4dx">4DX
+                                        Motion</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="feature-card p-2">
+                                <div class="form-check form-switch d-flex align-items-center gap-2 m-0">
+                                    <input type="checkbox" name="is_dolby" class="form-check-input m-0" id="checkDolby">
+                                    <label class="form-check-label text-white small mt-1" for="checkDolby">Dolby
+                                        Atmos</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer px-4 py-3">
+                    <button type="button" class="btn btn-action m-0 border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-red rounded-3 px-4">Save Theatre</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("theatreSearch").addEventListener("keyup", function () {
+        let filter = this.value.toLowerCase();
+        let cards = document.querySelectorAll("#theatresGrid .theatre-card-container");
+
+        cards.forEach(card => {
+            let name = card.querySelector(".theatre-name").innerText.toLowerCase();
+            let location = card.querySelector(".theatre-location").innerText.toLowerCase();
+
+            // Show if it matches name OR location
+            card.style.display = (name.includes(filter) || location.includes(filter)) ? "" : "none";
+        });
+    });
+</script>
+
+{% endblock %}
