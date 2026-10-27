@@ -145,7 +145,7 @@ http://127.0.0.1:5000/
 **Harsh Tembekar**
 
 - GitHub: [harsht1210](https://github.com/harsht1210)
-- Portfolio: [harshtportfolio.netlify.app](https://harshtportfolio.netlify.app/)
+- Portfolio: [harshtportfolio.netlify.app](https://harshportfolio123.netlify.app/)
 
 ---
 
