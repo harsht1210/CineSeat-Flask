@@ -54,13 +54,13 @@ CineSeat/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/harsht1210/CineSeat.git
+git clone https://github.com/harsht1210/CineSeat-Flask.git
 ```
 
 ### 2. Navigate to the project directory
 
 ```bash
-cd CineSeat
+cd CineSeat-Flask
 ```
 
 ### 3. Create a virtual environment
@@ -145,7 +145,7 @@ http://127.0.0.1:5000/
 **Harsh Tembekar**
 
 - GitHub: [harsht1210](https://github.com/harsht1210)
-- Portfolio: [harshtportfolio.netlify.app](https://harshtportfolio.netlify.app/)
+- Portfolio: [harshtportfolio.netlify.app](https://harshportfolio123.netlify.app/)
 
 ---
 
